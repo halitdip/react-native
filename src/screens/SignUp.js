@@ -2,9 +2,8 @@ import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import React, { useState } from 'react'
 import { CustomTextInput, CustomButton } from '../components'
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 const signuplogo = require("../../assets/images/signuplogo.png")
-
-
 
 
 const SignUp = ({navigation}) => {
@@ -69,12 +68,12 @@ const styles = StyleSheet.create({
     textInputContainer: {
         width: '90%',
         alignItems: 'center',
-        flex: 3,
+        flex: 2,
         justifyContent: 'space-between',
         paddingVertical: 20
     },
     signupContainer: {
-        flex: 3,
+        flex: 2,
         width: '100%',
         alignItems: 'center',
         justifyContent : 'space-between',
