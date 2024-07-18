@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Alert,  Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { setUsername,setPassword,setIsAuth } from '../redux/userSlice';
+import { setUsername,setPassword,getLogin } from '../redux/userSlice';
 
 
 const logo = require("../../assets/images/a101logo.png")
@@ -46,7 +46,7 @@ export default function LoginForm({navigation}) {
       </View>
 
       <View style={styles.buttonView}>
-        <Pressable style={styles.button} onPress={() => dispatch(setIsAuth())}>
+        <Pressable style={styles.button} onPress={() => dispatch(getLogin())}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </Pressable>
       </View>

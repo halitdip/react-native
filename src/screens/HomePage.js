@@ -1,52 +1,34 @@
-import { Pressable, StyleSheet, View, Text, FlatList } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { Pressable, StyleSheet, View, Text, } from 'react-native'
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import jwtDecode from 'jwt-decode';
 import { setLogout } from '../redux/userSlice';
 import loginServices from '../services/main/loginServices';
 
-
-const Item = ({ item }) => (
-    <View style={styles.item}>
-        <Text style={styles.title}>{item.age} - {item.university}</Text>
-    </View>
-);
-
-
 const HomePage = () => {
-    const dispatch = useDispatch();
-    const [userData, setUserData] = useState([]);
-    const [test, setTest] = useState('');
+    const session = useSelector((state) => state.user.session);
+    const token = useSelector((state)=>state.user.token)
 
-/* 
+
     useEffect(() => {
+        loginServices.faqinfo()
+        .then(res=>{
+            console.log(res)
+        })
+        
+    }, []);
+    const dispatch = useDispatch();
 
-        const fetchData = async () => {
-            await loginServices.deneme()
-            .then(res=>{
-                setUserData(res.data.users);
-            }).catch(err=>{
-                setUserData([]);
-                alert(err)
-            })
-        };
-
-        fetchData();
-    }, []); */
-
-    return ( 
-        <View> 
-              <Pressable onPress={() => dispatch(setLogout(false))}>
+    return (
+        <View>
+            <Text style={{ marginBottom: 30, fontWeight: 'bold' }}>Hoşgeldin {session?.user?.name} {session?.user?.surname}</Text>
+            <Pressable onPress={() => dispatch(setLogout(false))}>
                 <Text>
                     Çıkış Yap
                 </Text>
             </Pressable>
-            
-            <FlatList
-                data={userData}
-                renderItem={({ item }) => <Item item={item} />}
-                keyExtractor={item => item.id}
-            />
-          
+
+
         </View>
     )
 }

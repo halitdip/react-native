@@ -1,23 +1,43 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import loginServices from '../services/main/loginServices';
 
 const initialState = {
-    username: 'halitdip',
-    password: '12345',
+    username: '',
+    password: '',
     isLoading: false,
     isAuth: false,
-    users: {
-        ka: 'halitdip',
-        pass: '12345'
-    }
+    session : [],
+    token : null,
+    refreshToken : null
 }
+
+
+
+export const getLogin = createAsyncThunk("getLogin", async (_, { getState, rejectWithValue }) => {
+    const state = getState();
+    const username = state.user.username;
+    const passw = state.user.password;
+
+    const model = {
+        "userName": username,
+        "password": passw
+    };
+
+    try {
+        const resp = await loginServices.login(model);
+        return resp.data; 
+    } catch (error) {
+        console.log(error)
+        return rejectWithValue(error.response);
+    }
+});
 
 export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
         setUsername: (state, action) => {
-            state.username = action.payload;
+            state.username = action.payload ;
         },
         setPassword: (state, action) => {
             state.password = action.payload
@@ -25,41 +45,42 @@ export const userSlice = createSlice({
         setIsloading: (state, action) => {
             state.isLoading = action.payload
         },
-        setIsAuth: (state) => {
-
-            const model =
-            {
-                "userName": state.username,
-                "password": state.password
-            }
-
-            loginServices.login(model)
-                .then(res => {
-                    console.log(res)
-                }).catch(err=>{
-                    console.log('err line 40 userslice',err)
-                })
-
-
-            state.isLoading = true;
-
-            if (state.users.ka == state.username && state.password)
-                state.isAuth = true;
-            else {
-                alert("Kullanıcı Bulunamadı !")
-            }
-
-            state.isLoading = false
-
-
-        },
         setLogout: (state) => {
-            /*  state.username = null;
-             state.password = null;  */
+            state.session = []
+            state.token = null
+            state.refreshToken = null
             state.isAuth = false;
         }
-    }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(getLogin.fulfilled, (state, action) => {
+
+                console.log(action.payload)
+                if(action.payload.statusCode === 200){
+                    state.session = action.payload.result
+                    state.token = action.payload.result.accessToken
+                    state.refreshToken = action.payload.result.refreshToken
+                    state.isAuth = true
+                    
+                    
+                }
+                else{
+                     alert('userslice line 69 err: ',action.payload.message)
+                }
+                state.isLoading = false
+            })
+            .addCase(getLogin.pending, (state, action) => {
+                state.isLoading = true
+
+            })
+            .addCase(getLogin.rejected, (state, action) => {
+                // işlem hatalı olursa yapılacak işlemler
+                state.isLoading = false
+                console.log(action)
+            });
+    },
 })
 
-export const { setUsername, setPassword, setIsloading, setIsAuth, setLogout } = userSlice.actions
+export const { setUsername, setPassword, setIsloading,  setLogout } = userSlice.actions
 export default userSlice.reducer 
