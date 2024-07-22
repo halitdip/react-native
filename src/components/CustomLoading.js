@@ -2,8 +2,11 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Text, Image } from 'react-native';
 const logo = require("../../assets/images/a101logo.png")
-
+import { useDispatch } from 'react-redux';
+import { setIsloading } from '../redux/userSlice';
 const Loading = () => {
+    /* const dispatch = useDispatch();
+    dispatch(setIsloading(false)) */
     return (
         <View style={styles.container}>
             <Image source={logo} style={styles.image} resizeMode='contain' />

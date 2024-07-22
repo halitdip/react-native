@@ -25,10 +25,11 @@ export default ApiService;
 
 import { base } from '../extension/axios'
 import jwtDecode from 'jwt-decode';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setLogout, setToken } from '../../redux/userSlice';
+
 
 const ApiService = {
-    async api( type, baseUrl, url, model, bearer) {
+    async api(type, baseUrl, url, model, bearer, dispatch, session) {
 
         return new Promise((resolve, reject) => {
 
@@ -38,18 +39,14 @@ const ApiService = {
                 return;
             }
 
-            this.apiRequest( type, axiosBase, url, model, bearer)
+            this.apiRequest(type, axiosBase, url, model, bearer, dispatch, session)
                 .then(response => {
                     resolve(response);
                 })
                 .catch(err => {
-
-                    console.log('httpclien line 45 err : ', err.response.status)
-
                     if (err.response.status == 401) {
-
+                        dispatch(setLogout())
                     }
-
                     reject(err);
 
 
@@ -58,6 +55,7 @@ const ApiService = {
     },
 
     getAxiosBase(baseUrl) {
+
         switch (baseUrl) {
             case 'Api':
                 return base.Api.apiProd;
@@ -67,7 +65,7 @@ const ApiService = {
     },
 
 
-    async refreshJwt(token) {
+    async refreshJwt(refreshtoken, token, dispatch) {
         try {
             let access = jwtDecode(token);
             let datetime = new Date();
@@ -75,25 +73,32 @@ const ApiService = {
             datetime.setSeconds(datetime.getSeconds() + 30);
             expTime.setMinutes(expTime.getMinutes());
 
+            if (datetime >= expTime) {
+                await base.Api.apiProd.post('/api/Account/GetAccessToken', {
+                    "refreshToken": `${refreshtoken}`
+                }).then(function (resp) {
+                    dispatch(setToken(resp.data.result))
+                })
+                    .catch(function (err) {
+                        console.log('httpclien line 83 : ' + err);
+                    })
+            }
 
-            console.log(datetime);
-            console.log(expTime)
         } catch (err) {
-            console.log(err);
+            console.log('httpclient line 88 :' + err);
         }
     },
 
-    async apiRequest( type, axiosBase, url, model, bearer) {
-        const keys = await AsyncStorage.getItem("persist:root");
-        const token = JSON.parse(JSON.parse(keys).token);
-        
+    async apiRequest(type, axiosBase, url, model, bearer, dispatch, session) {
+
+        const token = session?.accessToken;
         if (bearer === 1 && token) {
-            await this.refreshJwt(token);
+            await this.refreshJwt(session?.refreshToken, token, dispatch);
         }
         if (type == 'post')
-            return axiosBase.post(url, model, bearer === 1 ? { headers: { 'Authorization': `Bearerss ${token}` } } : null);
+            return axiosBase.post(url, model, bearer === 1 ? { headers: { 'Authorization': `Bearer ${token}` } } : null);
         else if (type == 'get')
-            return axiosBase.get(url, bearer === 1 ? { headers: { 'Authorization': `Bearerss ${token}` } } : null);
+            return axiosBase.get(url, bearer === 1 ? { headers: { 'Authorization': `Bearer ${token}` } } : null);
     },
 };
 

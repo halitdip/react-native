@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
 import React, { useState } from 'react'
-import { CustomTextInput, CustomButton } from '../components'
+import { CustomTextInput, CustomButton } from '../../components'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const signuplogo = require("../../assets/images/signuplogo.png")
+const signuplogo = require("../../../assets/images/signuplogo.png")
 
 
 const SignUp = ({navigation}) => {

@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
-import { Alert,  Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Alert,  Image, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { setUsername,setPassword,getLogin } from '../redux/userSlice';
+import { setUsername,setPassword,getLogin,setLogout,setIsloading } from '../../redux/userSlice';
+import loginServices from '../../services/main/loginServices';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const logo = require("../../../assets/images/a101logo.png")
 
 
-const logo = require("../../assets/images/a101logo.png")
-
- 
 
 export default function LoginForm({navigation}) {
   const dispatch = useDispatch();
@@ -22,7 +23,6 @@ export default function LoginForm({navigation}) {
     <SafeAreaView style={styles.container}>
 
       <Image source={logo} style={styles.image} resizeMode='contain' />
-      <Text style={styles.title}>Giriş Yap</Text>
       <View style={styles.inputView}>
         <TextInput style={styles.input} placeholder='Kullanıcı Adı' value={username} onChangeText={(value)=>dispatch(setUsername(value))} autoCorrect={false}
           autoCapitalize='none' />
@@ -46,7 +46,7 @@ export default function LoginForm({navigation}) {
       </View>
 
       <View style={styles.buttonView}>
-        <Pressable style={styles.button} onPress={() => dispatch(getLogin())}>
+        <Pressable style={styles.button} onPress={() => dispatch(getLogin(loginServices))}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </Pressable>
       </View>
@@ -61,13 +61,14 @@ export default function LoginForm({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    paddingTop: 70,
+
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
     height: 160,
-    width: 170,
-    borderWidth: 2
+    width: 170
 
   },
   title: {

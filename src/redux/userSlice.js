@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import loginServices from '../services/main/loginServices';
 
 const initialState = {
     username: '',
@@ -13,7 +12,8 @@ const initialState = {
 
 
 
-export const getLogin = createAsyncThunk("getLogin", async (_, { getState, rejectWithValue }) => {
+export const getLogin = createAsyncThunk("getLogin", async (loginServices, { getState, rejectWithValue }) => {
+ 
     const state = getState();
     const username = state.user.username;
     const passw = state.user.password;
@@ -27,7 +27,6 @@ export const getLogin = createAsyncThunk("getLogin", async (_, { getState, rejec
         const resp = await loginServices.login(model);
         return resp.data; 
     } catch (error) {
-        console.log(error)
         return rejectWithValue(error.response);
     }
 });
@@ -50,23 +49,23 @@ export const userSlice = createSlice({
             state.token = null
             state.refreshToken = null
             state.isAuth = false;
+            state.username = '';
+            state.password = ''
+        },
+        setToken: (state,action) =>{
+            state.session.accessToken =action.payload
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(getLogin.fulfilled, (state, action) => {
 
-                console.log(action.payload)
                 if(action.payload.statusCode === 200){
                     state.session = action.payload.result
-                    state.token = action.payload.result.accessToken
-                    state.refreshToken = action.payload.result.refreshToken
                     state.isAuth = true
-                    
-                    
                 }
                 else{
-                     alert('userslice line 69 err: ',action.payload.message)
+                     alert('userslice line 69 message : ' + action.payload.message)
                 }
                 state.isLoading = false
             })
@@ -77,10 +76,10 @@ export const userSlice = createSlice({
             .addCase(getLogin.rejected, (state, action) => {
                 // işlem hatalı olursa yapılacak işlemler
                 state.isLoading = false
-                console.log(action)
+                alert('userslice line 69 message : ' + action.payload.message)
             });
     },
 })
 
-export const { setUsername, setPassword, setIsloading,  setLogout } = userSlice.actions
+export const { setUsername, setPassword, setIsloading,  setLogout,setToken } = userSlice.actions
 export default userSlice.reducer 
